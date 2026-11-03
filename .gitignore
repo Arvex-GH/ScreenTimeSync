@@ -1,0 +1,56 @@
+# Build results
+bin/
+obj/
+out/
+releases/*.apk
+*.apk
+*.aab
+
+# VS
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+
+# Android
+.gradle/
+build/
+local.properties
+*.keystore
+*.jks
+captures/
+.externalNativeBuild/
+.cxx/
+*.hprof
+
+# C++
+Debug/
+Release/
+x64/
+*.o
+*.obj
+*.dll
+*.lib
+*.exp
+*.pch
+
+# OS
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Dependencies
+packages/
+node_modules/
+
+# SQLite DB
+*.db
+*.db-shm
+*.db-wal
+
+# Logs
+*.log

@@ -1,0 +1,294 @@
+<Window x:Class="ScreenTimeSync.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        mc:Ignorable="d"
+        Title="ScreenTimeSync — Windows Screen Time Tracker"
+        Height="880" Width="1280"
+        MinHeight="700" MinWidth="1100"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BgBrush}"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        BorderThickness="1" BorderBrush="#1E2438">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="64"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="28"/>
+        </Grid.RowDefinitions>
+
+        <!-- CUSTOM TITLE BAR -->
+        <Border Grid.Row="0" Background="#0F1220" BorderBrush="#1E2438" BorderThickness="0,0,0,1" MouseLeftButtonDown="TitleBar_MouseDown">
+            <Grid Margin="20,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Grid.Column="0">
+                    <Border Width="36" Height="36" CornerRadius="10" Background="{StaticResource AccentBrush}" Margin="0,0,12,0">
+                        <TextBlock Text="◐" Foreground="White" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/>
+                    </Border>
+                    <StackPanel>
+                        <TextBlock Text="ScreenTimeSync" FontWeight="Bold" FontSize="15" Foreground="White"/>
+                        <TextBlock Text="Per-app tracking • Bluetooth LE • Real-time" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                    <Border Style="{StaticResource PillBadge}" Margin="16,0,0,0" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="8" Height="8" Fill="#00E676" Margin="0,0,6,0"/>
+                            <TextBlock Text="{Binding BluetoothStatus}" FontSize="11" Foreground="#C3C8E0"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="─" Width="40" Height="32" Background="Transparent" Foreground="#9AA0B8" BorderThickness="0" Click="Minimize_Click"/>
+                    <Button Content="☐" Width="40" Height="32" Background="Transparent" Foreground="#9AA0B8" BorderThickness="0" Click="Maximize_Click"/>
+                    <Button Content="✕" Width="40" Height="32" Background="Transparent" Foreground="#FF6B6B" BorderThickness="0" Click="Close_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- MAIN CONTENT -->
+        <Grid Grid.Row="1" Margin="24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="320"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="360"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- LEFT: TODAY OVERVIEW -->
+            <StackPanel Grid.Column="0" Grid.Row="0" Margin="0,0,16,0">
+                <Border Style="{StaticResource GlassCard}" Padding="24">
+                    <StackPanel>
+                        <TextBlock Text="{Binding TodayDate}" Style="{StaticResource Caption}" Margin="0,0,0,4"/>
+                        <TextBlock Text="Today's Screen Time" Style="{StaticResource Caption}" FontSize="13"/>
+                        <TextBlock Text="{Binding TotalTimeText}" FontSize="48" FontWeight="Black" Foreground="White" Margin="0,8,0,4">
+                            <TextBlock.Effect>
+                                <DropShadowEffect BlurRadius="16" ShadowDepth="0" Color="#6C5CE7" Opacity="0.6"/>
+                            </TextBlock.Effect>
+                        </TextBlock>
+                        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                            <Border Background="#1A2338" CornerRadius="8" Padding="8,4" Margin="0,0,8,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="●" Foreground="{Binding IsIdle, Converter={StaticResource BoolToColor}}" FontSize="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <TextBlock Text="{Binding CurrentApp}" Foreground="#C3C8E0" FontSize="12" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Border>
+                            <TextBlock Text="active now" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <!-- Weekly mini bars -->
+                        <TextBlock Text="THIS WEEK" Style="{StaticResource Caption}" Margin="0,20,0,8" FontWeight="Bold" LetterSpacing="2"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" HorizontalAlignment="Center"><Border Height="40" Width="18" Background="#232A3D" CornerRadius="6" VerticalAlignment="Bottom"/><TextBlock Text="M" FontSize="10" Foreground="#6B7280" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Center"><Border Height="60" Width="18" Background="{StaticResource AccentBrush}" CornerRadius="6"/><TextBlock Text="T" FontSize="10" Foreground="#6B7280" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
+                            <StackPanel Grid.Column="2" HorizontalAlignment="Center"><Border Height="35" Width="18" Background="#232A3D" CornerRadius="6"/><TextBlock Text="W" FontSize="10" Foreground="#6B7280" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
+                            <StackPanel Grid.Column="3" HorizontalAlignment="Center"><Border Height="50" Width="18" Background="#39405E" CornerRadius="6"/><TextBlock Text="T" FontSize="10" Foreground="#6B7280" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
+                            <StackPanel Grid.Column="4" HorizontalAlignment="Center"><Border Height="45" Width="18" Background="#232A3D" CornerRadius="6"/><TextBlock Text="F" FontSize="10" Foreground="#6B7280" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
+                            <StackPanel Grid.Column="5" HorizontalAlignment="Center"><Border Height="20" Width="18" Background="#232A3D" CornerRadius="6"/><TextBlock Text="S" FontSize="10" Foreground="#6B7280" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
+                            <StackPanel Grid.Column="6" HorizontalAlignment="Center"><Border Height="25" Width="18" Background="#232A3D" CornerRadius="6"/><TextBlock Text="S" FontSize="10" Foreground="#6B7280" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
+                        </Grid>
+                        <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                            <ui:Button Content="Reset Today" Icon="{ui:SymbolIcon ArrowReset24}" Appearance="Secondary" Command="{Binding ResetTodayCommand}" Margin="0,0,8,0"/>
+                            <ui:Button Content="Export CSV" Appearance="Secondary" Icon="{ui:SymbolIcon ArrowDownload24}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Phone connection card -->
+                <Border Style="{StaticResource GlassCard}" Margin="0,16,0,0">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <Border Width="40" Height="40" CornerRadius="12" Background="#102A43" Margin="0,0,12,0">
+                                <TextBlock Text="📱" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel>
+                                <TextBlock Text="Phone Connected" Foreground="White" FontWeight="SemiBold" FontSize="13"/>
+                                <TextBlock Text="Real-time Bluetooth LE sync" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11"/>
+                            </StackPanel>
+                            <Border Background="#003E1F" CornerRadius="8" Padding="8,3" Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="LIVE" FontSize="10" FontWeight="Bold" Foreground="#00E676"/>
+                            </Border>
+                        </StackPanel>
+                        <TextBlock Text="Modify limits instantly from your Android phone. Changes apply in &lt;1s." Foreground="#9AA0B8" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+                            <Border Background="#1A1F35" CornerRadius="10" Padding="12" Margin="0,0,6,0">
+                                <StackPanel>
+                                    <TextBlock Text="PAIR CODE" FontSize="9" Foreground="#6B7280" FontWeight="Bold"/>
+                                    <TextBlock Text="ST-8842" FontSize="16" Foreground="White" FontWeight="Bold" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="#1A1F35" CornerRadius="10" Padding="12" Grid.Column="1" Margin="6,0,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="LATENCY" FontSize="9" Foreground="#6B7280" FontWeight="Bold"/>
+                                    <TextBlock Text="~180 ms" FontSize="16" Foreground="#00CEC9" FontWeight="Bold" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                        <TextBlock Text="Bluetooth Classic fallback available if BLE pairing fails." FontSize="10" Foreground="#5A6380" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- CENTER: PER-APP LIST -->
+            <Border Grid.Column="1" Grid.Row="0" Style="{StaticResource GlassCard}" Margin="0,0,16,0" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid Margin="20,16,20,12">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="Apps Today" Style="{StaticResource H2}"/>
+                            <TextBlock Text="Individually tracked • sorted by usage time" Style="{StaticResource Caption}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Grid.Column="1" VerticalAlignment="Center">
+                            <ui:Button Content="Time" Appearance="Secondary" Command="{Binding SortByTimeCommand}" Margin="0,0,6,0" Icon="{ui:SymbolIcon Clock24}"/>
+                            <ui:Button Content="A-Z" Appearance="Secondary" Command="{Binding SortByNameCommand}" Icon="{ui:SymbolIcon TextSortAscending24}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Search / filter -->
+                    <Border Grid.Row="1" Background="#0F1220" CornerRadius="10" Margin="20,0,20,12" Padding="10,8" BorderBrush="#232A3D" BorderThickness="1">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="🔍" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBlock Text="Filter apps (e.g. Chrome, VS Code)..." Foreground="#5A6380" FontSize="12" VerticalAlignment="Center" Grid.Column="1"/>
+                            <Border Grid.Column="2" Background="#1E2438" CornerRadius="6" Padding="6,3">
+                                <TextBlock Text="{Binding Apps.Count, StringFormat={}{0} apps}" FontSize="11" Foreground="#9AA0B8"/>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="12,0,12,12">
+                        <ItemsControl ItemsSource="{Binding Apps}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#0F1220" CornerRadius="12" Margin="0,0,0,10" Padding="14" BorderBrush="#1E2438" BorderThickness="1">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="44"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Width="44" Height="44" CornerRadius="10" Background="{Binding CategoryColor}" Opacity="0.15" Grid.Column="0"/>
+                                            <TextBlock Text="{Binding AppName, Converter={StaticResource InitialConverter}}" FontSize="16" FontWeight="Bold" Foreground="{Binding CategoryColor}" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0"/>
+
+                                            <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding AppName}" Foreground="White" FontWeight="SemiBold" FontSize="13"/>
+                                                    <Border Background="#1E2438" CornerRadius="6" Padding="6,2" Margin="8,0,0,0" Visibility="{Binding IsCurrentlyActive, Converter={StaticResource BoolToVisibility}}">
+                                                        <TextBlock Text="ACTIVE" FontSize="9" FontWeight="Bold" Foreground="#00E676"/>
+                                                    </Border>
+                                                    <Border Background="#2A1F3A" CornerRadius="6" Padding="6,2" Margin="6,0,0,0" Visibility="{Binding IsLimited, Converter={StaticResource BoolToVisibility}}">
+                                                        <TextBlock Text="LIMITED" FontSize="9" FontWeight="Bold" Foreground="#E84393"/>
+                                                    </Border>
+                                                </StackPanel>
+                                                <TextBlock Text="{Binding Category}" Foreground="{Binding CategoryColor}" FontSize="11" FontWeight="SemiBold" Margin="0,2,0,0"/>
+                                                <Grid Margin="0,8,0,0">
+                                                    <Border Height="6" Background="#1E2438" CornerRadius="3"/>
+                                                    <Border Height="6" Background="{Binding CategoryColor}" CornerRadius="3" HorizontalAlignment="Left" Width="{Binding UsagePercent, Converter={StaticResource PercentToWidth}, ConverterParameter=200}"/>
+                                                </Grid>
+                                                <TextBlock Text="{Binding LimitText}" Foreground="#5A6380" FontSize="10" Margin="0,4,0,0"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding DisplayTime}" Foreground="White" FontWeight="Bold" FontSize="16" HorizontalAlignment="Right"/>
+                                                <TextBlock Text="{Binding TodayUsage, StringFormat={}{0:mm\\:ss}}" Foreground="#6B7280" FontSize="11" HorizontalAlignment="Right"/>
+                                                <Border Background="#1A1F35" CornerRadius="6" Padding="6,3" Margin="0,6,0,0" HorizontalAlignment="Right">
+                                                    <TextBlock Text="{Binding UsagePercent, StringFormat={}{0:0}% of limit}" FontSize="10" Foreground="#9AA0B8" Visibility="{Binding IsLimited, Converter={StaticResource BoolToVisibility}}"/>
+                                                </Border>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+            <!-- RIGHT: CHART + CONTROLS -->
+            <StackPanel Grid.Column="2" Grid.Row="0">
+                <Border Style="{StaticResource GlassCard}">
+                    <StackPanel>
+                        <TextBlock Text="Usage Breakdown" Style="{StaticResource H2}"/>
+                        <TextBlock Text="Top 5 apps today" Style="{StaticResource Caption}" Margin="0,2,0,12"/>
+                        <lvc:PieChart Series="{Binding ChartSeries}" Height="220" LegendPosition="Bottom" TooltipPosition="Top"/>
+                        <Grid Margin="0,12,0,0">
+                            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="MOST USED" FontSize="10" Foreground="#6B7280" FontWeight="Bold"/>
+                                <TextBlock Text="Chrome • 2h 14m" FontSize="12" Foreground="White" FontWeight="SemiBold" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                                <TextBlock Text="PRODUCTIVITY SCORE" FontSize="10" Foreground="#6B7280" FontWeight="Bold" HorizontalAlignment="Right"/>
+                                <TextBlock Text="78 / 100" FontSize="12" Foreground="#00B894" FontWeight="Bold" HorizontalAlignment="Right" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource GlassCard}" Margin="0,16,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Quick Limits" Style="{StaticResource H2}"/>
+                        <TextBlock Text="Set daily caps — synced instantly to phone" Style="{StaticResource Caption}" Margin="0,4,0,12" TextWrapping="Wrap"/>
+                        <StackPanel>
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Chrome" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
+                                    <TextBlock Text="2h limit" Foreground="#9AA0B8" FontSize="11"/>
+                                </StackPanel>
+                                <ui:ToggleSwitch Grid.Column="1" IsChecked="True"/>
+                            </Grid>
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Discord" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
+                                    <TextBlock Text="1h limit" Foreground="#9AA0B8" FontSize="11"/>
+                                </StackPanel>
+                                <ui:ToggleSwitch Grid.Column="1" IsChecked="True"/>
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Steam" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
+                                    <TextBlock Text="No limit" Foreground="#5A6380" FontSize="11"/>
+                                </StackPanel>
+                                <ui:ToggleSwitch Grid.Column="1"/>
+                            </Grid>
+                        </StackPanel>
+                        <ui:Button Content="Manage all limits via phone" Icon="{ui:SymbolIcon Phone24}" Appearance="Primary" HorizontalAlignment="Stretch" Margin="0,16,0,0"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+
+        <!-- FOOTER -->
+        <Border Grid.Row="2" Background="#0F1220" BorderBrush="#1E2438" BorderThickness="0,1,0,0" Padding="12,0">
+            <Grid>
+                <TextBlock Text="© 2026 ScreenTimeSync • Tracking is local &amp; private • No cloud • SQLite" Foreground="#5A6380" FontSize="11" VerticalAlignment="Center"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Text="C# WPF + C++ Native Hook • BLE GATT • Android Compose" Foreground="#5A6380" FontSize="11"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+# Minimal gradlew wrapper stub - real wrapper downloaded via GitHub Actions setup-gradle
+# For local builds, install Gradle or use Android Studio
+echo "Gradle wrapper stub. Use Android Studio or run: gradle assembleDebug"
+echo "Alternatively, GitHub Actions will build APK automatically on push."
+exit 1
