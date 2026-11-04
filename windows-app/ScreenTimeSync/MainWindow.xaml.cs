@@ -9,10 +9,28 @@ public partial class MainWindow : Window
     // Hard-coded admin password (intentional, per owner request).
     private const string AdminPassword = "akiriro";
 
+    /// <summary>Set only by the tray Exit action / app shutdown. Otherwise
+    /// closing the window just hides it so tracking keeps running.</summary>
+    public bool ForceClose { get; set; }
+
     public MainWindow(DashboardViewModel viewModel)
     {
         InitializeComponent();
         DataContext = viewModel;
+        Closing += (_, e) =>
+        {
+            if (ForceClose) return;
+            e.Cancel = true;
+            Hide();
+        };
+    }
+
+    /// <summary>Bring the dashboard back (tray click, second launch, ...).</summary>
+    public void ShowDashboard()
+    {
+        Show();
+        if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
+        Activate();
     }
 
     // ---- Admin drawer (hidden; opened only with Ctrl+Shift+P) ----

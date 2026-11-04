@@ -52,10 +52,22 @@ public partial class DashboardViewModel : ObservableObject
         _clock.Tick += (_, _) => {
             TotalTimeText = FormatTotal(_tracker.TotalScreenTime);
             IsIdle = _tracker.IsIdle;
-            ActivityText = _tracker.IsIdle ? "idle - not counting" : "active now";
-            if (_tracker.IsIdle) CurrentApp = "Idle";
-            else if (!string.IsNullOrEmpty(_tracker.CurrentAppName))
-                CurrentApp = _tracker.TodayApps.FirstOrDefault(a => a.ProcessName.Equals(_tracker.CurrentAppName, StringComparison.OrdinalIgnoreCase))?.AppName ?? CurrentApp;
+            if (_tracker.IsLocked)
+            {
+                CurrentApp = "Locked";
+                ActivityText = "locked - not counting";
+            }
+            else if (_tracker.IsIdle)
+            {
+                CurrentApp = "Idle";
+                ActivityText = "idle - not counting";
+            }
+            else
+            {
+                ActivityText = "active now";
+                if (!string.IsNullOrEmpty(_tracker.CurrentAppName))
+                    CurrentApp = _tracker.TodayApps.FirstOrDefault(a => a.ProcessName.Equals(_tracker.CurrentAppName, StringComparison.OrdinalIgnoreCase))?.AppName ?? CurrentApp;
+            }
         };
         _clock.Start();
     }
