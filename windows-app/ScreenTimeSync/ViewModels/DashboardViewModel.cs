@@ -22,7 +22,6 @@ public partial class DashboardViewModel : ObservableObject
     [ObservableProperty] private string _bluetoothStatus = "● Advertising as ScreenTimeSync-PC";
     [ObservableProperty] private bool _isIdle;
     [ObservableProperty] private string _activityText = "active now";
-    [ObservableProperty] private string _activityText = "active now";
     [ObservableProperty] private ObservableCollection<AppUsageModel> _apps = new();
     [ObservableProperty] private ObservableCollection<ISeries> _chartSeries = new();
     [ObservableProperty] private string _todayDate = DateTime.Now.ToString("dddd, MMMM d");
