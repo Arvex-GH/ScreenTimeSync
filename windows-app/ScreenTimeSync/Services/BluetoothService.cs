@@ -35,7 +35,7 @@ public class BluetoothService
     {
         _tracker = tracker;
         _storage = storage;
-        _tracker.TotalTimeUpdated += _ => _ = PushUpdateAsync();
+        _tracker.TotalTimeUpdated += _total => _ = PushUpdateAsync();
         _tracker.DataRefreshed += () => _ = PushUpdateAsync();
     }
 
