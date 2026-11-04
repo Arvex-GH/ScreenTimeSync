@@ -84,7 +84,7 @@
                                     <TextBlock Text="{Binding CurrentApp}" Foreground="#C3C8E0" FontSize="12" FontWeight="SemiBold"/>
                                 </StackPanel>
                             </Border>
-                            <TextBlock Text="active now" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding ActivityText}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" VerticalAlignment="Center"/>
                         </StackPanel>
 
                         <!-- Weekly mini bars -->

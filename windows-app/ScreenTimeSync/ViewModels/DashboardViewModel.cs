@@ -21,6 +21,8 @@ public partial class DashboardViewModel : ObservableObject
     [ObservableProperty] private string _currentApp = "—";
     [ObservableProperty] private string _bluetoothStatus = "● Advertising as ScreenTimeSync-PC";
     [ObservableProperty] private bool _isIdle;
+    [ObservableProperty] private string _activityText = "active now";
+    [ObservableProperty] private string _activityText = "active now";
     [ObservableProperty] private ObservableCollection<AppUsageModel> _apps = new();
     [ObservableProperty] private ObservableCollection<ISeries> _chartSeries = new();
     [ObservableProperty] private string _todayDate = DateTime.Now.ToString("dddd, MMMM d");
@@ -50,6 +52,7 @@ public partial class DashboardViewModel : ObservableObject
         _clock.Tick += (_, _) => {
             TotalTimeText = FormatTotal(_tracker.TotalScreenTime);
             IsIdle = _tracker.IsIdle;
+            ActivityText = _tracker.IsIdle ? "idle - not counting" : "active now";
             if (_tracker.IsIdle) CurrentApp = "Idle";
             else if (!string.IsNullOrEmpty(_tracker.CurrentAppName))
                 CurrentApp = _tracker.TodayApps.FirstOrDefault(a => a.ProcessName.Equals(_tracker.CurrentAppName, StringComparison.OrdinalIgnoreCase))?.AppName ?? CurrentApp;
