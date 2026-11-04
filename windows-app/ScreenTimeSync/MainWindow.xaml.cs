@@ -1,24 +1,81 @@
 using System.Windows;
 using System.Windows.Input;
-using ScreenTimeSync.Services;
 using ScreenTimeSync.ViewModels;
 
 namespace ScreenTimeSync;
 
 public partial class MainWindow : Window
 {
-    public MainWindow()
+    // Hard-coded admin password (intentional, per owner request).
+    private const string AdminPassword = "akiriro";
+
+    public MainWindow(DashboardViewModel viewModel)
     {
         InitializeComponent();
-        // VM will be injected via App.xaml.cs in real run; fallback for designer
-        try
-        {
-            var storage = new StorageService();
-            var tracker = new TrackingService(storage);
-            DataContext = new DashboardViewModel(tracker);
-        }
-        catch {}
+        DataContext = viewModel;
     }
+
+    // ---- Admin drawer (hidden; opened only with Ctrl+Shift+P) ----
+
+    private void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key == System.Windows.Input.Key.P &&
+            (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control &&
+            (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
+        {
+            e.Handled = true;
+            if (AdminDrawer.Visibility == Visibility.Visible)
+                CloseAdminDrawer();
+            else
+                OpenAdminDrawer();
+        }
+    }
+
+    private void OpenAdminDrawer()
+    {
+        AdminLocked.Visibility = Visibility.Visible;
+        AdminUnlocked.Visibility = Visibility.Collapsed;
+        AdminError.Visibility = Visibility.Collapsed;
+        AdminPasswordBox.Password = "";
+        AdminDrawer.Visibility = Visibility.Visible;
+        AdminPasswordBox.Focus();
+    }
+
+    private void AdminClose_Click(object sender, RoutedEventArgs e) => CloseAdminDrawer();
+
+    private void AdminBackdrop_Click(object sender, MouseButtonEventArgs e) => CloseAdminDrawer();
+
+    private void CloseAdminDrawer()
+    {
+        AdminDrawer.Visibility = Visibility.Collapsed;
+        AdminPasswordBox.Password = "";
+    }
+
+    private void AdminPassword_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter) TryUnlockAdmin();
+    }
+
+    private void AdminUnlock_Click(object sender, RoutedEventArgs e) => TryUnlockAdmin();
+
+    private void TryUnlockAdmin()
+    {
+        if (AdminPasswordBox.Password == AdminPassword)
+        {
+            AdminError.Visibility = Visibility.Collapsed;
+            AdminLocked.Visibility = Visibility.Collapsed;
+            AdminUnlocked.Visibility = Visibility.Visible;
+            AdminPasswordBox.Password = "";
+        }
+        else
+        {
+            AdminError.Visibility = Visibility.Visible;
+            AdminPasswordBox.Password = "";
+            AdminPasswordBox.Focus();
+        }
+    }
+
+    // ---- Title bar ----
 
     private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
     {

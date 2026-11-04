@@ -16,6 +16,12 @@ public partial class AppUsageModel : ObservableObject
     [ObservableProperty] private double _usagePercent; // 0-100
     [ObservableProperty] private string _category = "Other"; // Productivity, Social, Gaming, Browser, etc.
 
+    // Keep computed display properties in sync when the underlying values change.
+    partial void OnTodayUsageChanged(TimeSpan value) => OnPropertyChanged(nameof(DisplayTime));
+    partial void OnDailyLimitChanged(TimeSpan value) => OnPropertyChanged(nameof(LimitText));
+    partial void OnIsLimitedChanged(bool value) => OnPropertyChanged(nameof(LimitText));
+    partial void OnCategoryChanged(string value) => OnPropertyChanged(nameof(CategoryColor));
+
     public string DisplayTime => $"{(int)TodayUsage.TotalHours}h {TodayUsage.Minutes}m";
     public string LimitText => IsLimited ? $"{(int)DailyLimit.TotalHours}h {DailyLimit.Minutes}m limit" : "No limit";
     public string CategoryColor => Category switch

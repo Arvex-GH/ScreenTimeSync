@@ -2,13 +2,19 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-             StartupUri="MainWindow.xaml">
+             xmlns:helpers="clr-namespace:ScreenTimeSync.Helpers">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ui:ThemesDictionary Theme="Dark" />
                 <ui:ControlsDictionary />
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- Converters (referenced as StaticResource in views) -->
+            <helpers:BoolToColorConverter x:Key="BoolToColor"/>
+            <helpers:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
+            <helpers:InitialConverter x:Key="InitialConverter"/>
+            <helpers:PercentToWidthConverter x:Key="PercentToWidth"/>
 
             <!-- Design System -->
             <SolidColorBrush x:Key="BgBrush" Color="#0B0E14"/>

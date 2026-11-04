@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Storage.Streams;
 using ScreenTimeSync.Models;
@@ -29,13 +30,13 @@ public class BluetoothService
     public event Action<string>? LogMessage;
     public event Action<string>? PhoneConnected;
 
-    private Timer? _pushTimer;
+    private System.Threading.Timer? _pushTimer;
 
     public BluetoothService(TrackingService tracker, StorageService storage)
     {
         _tracker = tracker;
         _storage = storage;
-        _tracker.TotalTimeUpdated += _ => _ = PushUpdateAsync();
+        _tracker.TotalTimeUpdated += _total => _ = PushUpdateAsync();
         _tracker.DataRefreshed += () => _ = PushUpdateAsync();
     }
 
@@ -88,7 +89,7 @@ public class BluetoothService
             LogMessage?.Invoke("✓ BLE GATT server advertising as 'ScreenTimeSync-PC'");
 
             // Push updates every 2 seconds
-            _pushTimer = new Timer(async _ => await PushUpdateAsync(), null, 2000, 2000);
+            _pushTimer = new System.Threading.Timer(async _ => await PushUpdateAsync(), null, 2000, 2000);
         }
         catch (Exception ex)
         {
