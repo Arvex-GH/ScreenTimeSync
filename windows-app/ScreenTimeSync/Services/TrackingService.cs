@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Microsoft.Win32;
 using System.Runtime.InteropServices;
 using System.Windows.Threading;
 using ScreenTimeSync.Models;
@@ -25,6 +26,7 @@ public class TrackingService
     private TimeSpan _totalToday;
     private DateTime _lastTick;
     private bool _loaded;
+    private volatile bool _isSessionLocked;
 
     // Idle detection
     [DllImport("user32.dll")] static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
@@ -42,6 +44,8 @@ public class TrackingService
     /// <summary>Total active (non-idle) time credited today. Only ever grows by credited ticks.</summary>
     public TimeSpan TotalScreenTime => _totalToday;
     public bool IsIdle { get; private set; }
+    /// <summary>True while the workstation is locked (Win+L / lock screen). Nothing is credited.</summary>
+    public bool IsLocked => _isSessionLocked;
     public string CurrentAppName => _currentProcess;
 
     private readonly Dictionary<string, AppUsageModel> _appCache = new(StringComparer.OrdinalIgnoreCase);
@@ -75,6 +79,7 @@ public class TrackingService
         // the first ticks would be overwritten by the loaded snapshot.
         await LoadTodayAsync();
         _loaded = true;
+        SystemEvents.SessionSwitch += OnSessionSwitch;
         _lastTick = DateTime.Now;
         _pollTimer.Start();
         _persistTimer.Start();
@@ -84,6 +89,7 @@ public class TrackingService
 
     public void Stop()
     {
+        SystemEvents.SessionSwitch -= OnSessionSwitch;
         _pollTimer.Stop();
         _persistTimer.Stop();
         _ = _storage.SaveSnapshotAsync(TodayApps, TotalScreenTime);
@@ -113,9 +119,25 @@ public class TrackingService
         TotalTimeUpdated?.Invoke(_totalToday);
     }
 
+    private void OnSessionSwitch(object sender, SessionSwitchEventArgs e)
+    {
+        if (e.Reason == SessionSwitchReason.SessionLock)
+        {
+            _isSessionLocked = true;
+            foreach (var kv in _appCache) kv.Value.IsCurrentlyActive = false;
+        }
+        else if (e.Reason == SessionSwitchReason.SessionUnlock)
+        {
+            _isSessionLocked = false;
+            _lastTick = DateTime.Now; // don't credit the locked gap on unlock
+        }
+    }
+
     private void PollTick(object? s, EventArgs e)
     {
         if (!_loaded) return;
+        // Screen locked: PC may be on, but nobody is using it -> count nothing.
+        if (_isSessionLocked) { _lastTick = DateTime.Now; return; }
         var now = DateTime.Now;
         var delta = now - _lastTick;
         _lastTick = now;
@@ -137,6 +159,7 @@ public class TrackingService
 
         var proc = GetForegroundProcessName();
         if (string.IsNullOrEmpty(proc)) return;
+        if (proc.Equals("LockApp", StringComparison.OrdinalIgnoreCase)) return;
 
         if (!string.Equals(proc, _currentProcess, StringComparison.OrdinalIgnoreCase))
             OnAppChanged(proc);
