@@ -88,7 +88,7 @@
                         </StackPanel>
 
                         <!-- Weekly mini bars -->
-                        <TextBlock Text="THIS WEEK" Style="{StaticResource Caption}" Margin="0,20,0,8" FontWeight="Bold" LetterSpacing="2"/>
+                        <TextBlock Text="THIS WEEK" Style="{StaticResource Caption}" Margin="0,20,0,8" FontWeight="Bold"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/>
