@@ -13,7 +13,8 @@
         Background="{StaticResource BgBrush}"
         WindowStyle="None"
         AllowsTransparency="True"
-        BorderThickness="1" BorderBrush="#1E2438">
+        BorderThickness="1" BorderBrush="#1E2438"
+        PreviewKeyDown="Window_PreviewKeyDown">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -101,9 +102,6 @@
                             <StackPanel Grid.Column="5" HorizontalAlignment="Center"><Border Height="20" Width="18" Background="#232A3D" CornerRadius="6"/><TextBlock Text="S" FontSize="10" Foreground="#6B7280" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
                             <StackPanel Grid.Column="6" HorizontalAlignment="Center"><Border Height="25" Width="18" Background="#232A3D" CornerRadius="6"/><TextBlock Text="S" FontSize="10" Foreground="#6B7280" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
                         </Grid>
-                        <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
-                            <ui:Button Content="Admin" Appearance="Secondary" Click="AdminOpen_Click"/>
-                        </StackPanel>
                     </StackPanel>
                 </Border>
 

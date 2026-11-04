@@ -15,9 +15,23 @@ public partial class MainWindow : Window
         DataContext = viewModel;
     }
 
-    // ---- Admin drawer ----
+    // ---- Admin drawer (hidden; opened only with Ctrl+Shift+P) ----
 
-    private void AdminOpen_Click(object sender, RoutedEventArgs e)
+    private void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key == System.Windows.Input.Key.P &&
+            (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control &&
+            (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
+        {
+            e.Handled = true;
+            if (AdminDrawer.Visibility == Visibility.Visible)
+                CloseAdminDrawer();
+            else
+                OpenAdminDrawer();
+        }
+    }
+
+    private void OpenAdminDrawer()
     {
         AdminLocked.Visibility = Visibility.Visible;
         AdminUnlocked.Visibility = Visibility.Collapsed;
