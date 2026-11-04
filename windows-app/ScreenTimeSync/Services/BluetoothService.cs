@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Storage.Streams;
 using ScreenTimeSync.Models;
