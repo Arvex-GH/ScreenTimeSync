@@ -27,6 +27,7 @@ public partial class DashboardViewModel : ObservableObject
     [ObservableProperty] private string _todayDate = DateTime.Now.ToString("dddd, MMMM d");
     [ObservableProperty] private string _mostUsedText = "—";
     [ObservableProperty] private string _productivityText = "—";
+    [ObservableProperty] private string _exportStatusText = "";
 
     public DashboardViewModel(TrackingService tracker)
     {
@@ -105,6 +106,35 @@ public partial class DashboardViewModel : ObservableObject
                 DataLabelsFormatter = p => $"{p.Coordinate.PrimaryValue:0}m"
             })
         );
+    }
+
+    [RelayCommand]
+    void ExportCsv()
+    {
+        try
+        {
+            var dir = System.IO.Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "ScreenTimeSync");
+            System.IO.Directory.CreateDirectory(dir);
+            var file = System.IO.Path.Combine(dir, $"screentime-{DateTime.Now:yyyyMMdd-HHmm}.csv");
+
+            static string Esc(string v) => "\"" + v.Replace("\"", "\"\"") + "\"";
+            var lines = new List<string> { "App,Process,Category,Minutes,LimitMinutes,IsLimited" };
+            foreach (var a in _tracker.TodayApps.OrderByDescending(a => a.TodayUsage))
+                lines.Add(string.Join(",",
+                    Esc(a.AppName), Esc(a.ProcessName), Esc(a.Category),
+                    ((int)a.TodayUsage.TotalMinutes).ToString(),
+                    ((int)a.DailyLimit.TotalMinutes).ToString(),
+                    a.IsLimited ? "true" : "false"));
+            lines.Add($"Total,,,,{(int)_tracker.TotalScreenTime.TotalMinutes},");
+
+            System.IO.File.WriteAllLines(file, lines);
+            ExportStatusText = $"Exported to {file}";
+        }
+        catch (Exception ex)
+        {
+            ExportStatusText = $"Export failed: {ex.Message}";
+        }
     }
 
     [RelayCommand]

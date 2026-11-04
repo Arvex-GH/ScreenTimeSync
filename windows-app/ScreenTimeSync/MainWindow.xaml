@@ -102,14 +102,13 @@
                             <StackPanel Grid.Column="6" HorizontalAlignment="Center"><Border Height="25" Width="18" Background="#232A3D" CornerRadius="6"/><TextBlock Text="S" FontSize="10" Foreground="#6B7280" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
                         </Grid>
                         <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
-                            <ui:Button Content="Reset Today" Icon="{ui:SymbolIcon ArrowReset24}" Appearance="Secondary" Command="{Binding ResetTodayCommand}" Margin="0,0,8,0"/>
-                            <ui:Button Content="Export CSV" Appearance="Secondary" Icon="{ui:SymbolIcon ArrowDownload24}"/>
+                            <ui:Button Content="Admin" Appearance="Secondary" Click="AdminOpen_Click"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>
 
-                <!-- Phone connection card -->
-                <Border Style="{StaticResource GlassCard}" Margin="0,16,0,0">
+                <!-- Phone connection card: hidden for now (Visibility=Collapsed), code kept for later -->
+                <Border Style="{StaticResource GlassCard}" Margin="0,16,0,0" Visibility="Collapsed">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                             <Border Width="40" Height="40" CornerRadius="12" Background="#102A43" Margin="0,0,12,0">
@@ -245,40 +244,37 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource GlassCard}" Margin="0,16,0,0">
-                    <StackPanel>
-                        <TextBlock Text="Quick Limits" Style="{StaticResource H2}"/>
-                        <TextBlock Text="Set daily caps — synced instantly to phone" Style="{StaticResource Caption}" Margin="0,4,0,12" TextWrapping="Wrap"/>
-                        <StackPanel>
-                            <Grid Margin="0,0,0,10">
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                <StackPanel>
-                                    <TextBlock Text="Chrome" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
-                                    <TextBlock Text="2h limit" Foreground="#9AA0B8" FontSize="11"/>
-                                </StackPanel>
-                                <ui:ToggleSwitch Grid.Column="1" IsChecked="True"/>
-                            </Grid>
-                            <Grid Margin="0,0,0,10">
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                <StackPanel>
-                                    <TextBlock Text="Discord" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
-                                    <TextBlock Text="1h limit" Foreground="#9AA0B8" FontSize="11"/>
-                                </StackPanel>
-                                <ui:ToggleSwitch Grid.Column="1" IsChecked="True"/>
-                            </Grid>
-                            <Grid>
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                <StackPanel>
-                                    <TextBlock Text="Steam" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
-                                    <TextBlock Text="No limit" Foreground="#5A6380" FontSize="11"/>
-                                </StackPanel>
-                                <ui:ToggleSwitch Grid.Column="1"/>
-                            </Grid>
-                        </StackPanel>
-                        <ui:Button Content="Manage all limits via phone" Icon="{ui:SymbolIcon Phone24}" Appearance="Primary" HorizontalAlignment="Stretch" Margin="0,16,0,0"/>
-                    </StackPanel>
-                </Border>
             </StackPanel>
+        </Grid>
+
+
+        <!-- ADMIN DRAWER (overlay, password-gated) -->
+        <Grid x:Name="AdminDrawer" Grid.Row="0" Grid.RowSpan="3" Visibility="Collapsed" Panel.ZIndex="99">
+            <Border Background="#99000000" MouseLeftButtonDown="AdminBackdrop_Click"/>
+            <Border Width="340" HorizontalAlignment="Right" Background="#151A26" BorderBrush="#232A3D" BorderThickness="1,0,0,0" Padding="24">
+                <StackPanel>
+                    <Grid Margin="0,0,0,16">
+                        <TextBlock Text="Admin Panel" Style="{StaticResource H2}" VerticalAlignment="Center"/>
+                        <Button Content="✕" Width="36" Height="32" HorizontalAlignment="Right" Background="Transparent" Foreground="#9AA0B8" BorderThickness="0" Click="AdminClose_Click"/>
+                    </Grid>
+
+                    <!-- Locked state: password prompt -->
+                    <StackPanel x:Name="AdminLocked">
+                        <TextBlock Text="Enter admin password" Foreground="#9AA0B8" FontSize="12" Margin="0,0,0,8"/>
+                        <PasswordBox x:Name="AdminPasswordBox" Background="#0F1220" Foreground="White" BorderBrush="#232A3D" BorderThickness="1" Padding="10,8" KeyDown="AdminPassword_KeyDown"/>
+                        <TextBlock x:Name="AdminError" Text="Wrong password" Foreground="#FF6B6B" FontSize="11" Margin="0,8,0,0" Visibility="Collapsed"/>
+                        <ui:Button Content="Unlock" Appearance="Primary" HorizontalAlignment="Stretch" Margin="0,16,0,0" Click="AdminUnlock_Click"/>
+                    </StackPanel>
+
+                    <!-- Unlocked state: admin actions -->
+                    <StackPanel x:Name="AdminUnlocked" Visibility="Collapsed">
+                        <TextBlock Text="Admin actions" Foreground="#9AA0B8" FontSize="12" Margin="0,0,0,12"/>
+                        <ui:Button Content="Reset Today" Icon="{ui:SymbolIcon ArrowReset24}" Appearance="Secondary" HorizontalAlignment="Stretch" Command="{Binding ResetTodayCommand}" Margin="0,0,0,10"/>
+                        <ui:Button Content="Export CSV" Icon="{ui:SymbolIcon ArrowDownload24}" Appearance="Secondary" HorizontalAlignment="Stretch" Command="{Binding ExportCsvCommand}"/>
+                        <TextBlock Text="{Binding ExportStatusText}" Foreground="#00CEC9" FontSize="11" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
         </Grid>
 
         <!-- FOOTER -->
