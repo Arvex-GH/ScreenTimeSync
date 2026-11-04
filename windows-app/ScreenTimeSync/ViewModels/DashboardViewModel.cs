@@ -65,9 +65,9 @@ public partial class DashboardViewModel : ObservableObject
             else
             {
                 ActivityText = "active now";
+                if (!string.IsNullOrEmpty(_tracker.CurrentAppName))
+                    CurrentApp = _tracker.TodayApps.FirstOrDefault(a => a.ProcessName.Equals(_tracker.CurrentAppName, StringComparison.OrdinalIgnoreCase))?.AppName ?? CurrentApp;
             }
-            else if (!string.IsNullOrEmpty(_tracker.CurrentAppName))
-                CurrentApp = _tracker.TodayApps.FirstOrDefault(a => a.ProcessName.Equals(_tracker.CurrentAppName, StringComparison.OrdinalIgnoreCase))?.AppName ?? CurrentApp;
         };
         _clock.Start();
     }
