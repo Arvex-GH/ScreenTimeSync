@@ -134,8 +134,8 @@
                             </Border>
                             <Border Background="#1A1F35" CornerRadius="10" Padding="12" Grid.Column="1" Margin="6,0,0,0">
                                 <StackPanel>
-                                    <TextBlock Text="LATENCY" FontSize="9" Foreground="#6B7280" FontWeight="Bold"/>
-                                    <TextBlock Text="~180 ms" FontSize="16" Foreground="#00CEC9" FontWeight="Bold" Margin="0,2,0,0"/>
+                                    <TextBlock Text="STATUS" FontSize="9" Foreground="#6B7280" FontWeight="Bold"/>
+                                    <TextBlock Text="Waiting for phone" FontSize="12" Foreground="#00CEC9" FontWeight="Bold" Margin="0,2,0,0"/>
                                 </StackPanel>
                             </Border>
                         </Grid>
@@ -239,7 +239,7 @@
                             </StackPanel>
                             <StackPanel Grid.Column="1" HorizontalAlignment="Right">
                                 <TextBlock Text="PRODUCTIVITY SCORE" FontSize="10" Foreground="#6B7280" FontWeight="Bold" HorizontalAlignment="Right"/>
-                                <TextBlock Text="78 / 100" FontSize="12" Foreground="#00B894" FontWeight="Bold" HorizontalAlignment="Right" Margin="0,2,0,0"/>
+                                <TextBlock Text="{Binding ProductivityText}" FontSize="12" Foreground="#00B894" FontWeight="Bold" HorizontalAlignment="Right" Margin="0,2,0,0"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>

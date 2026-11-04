@@ -1,23 +1,15 @@
 using System.Windows;
 using System.Windows.Input;
-using ScreenTimeSync.Services;
 using ScreenTimeSync.ViewModels;
 
 namespace ScreenTimeSync;
 
 public partial class MainWindow : Window
 {
-    public MainWindow()
+    public MainWindow(DashboardViewModel viewModel)
     {
         InitializeComponent();
-        // VM will be injected via App.xaml.cs in real run; fallback for designer
-        try
-        {
-            var storage = new StorageService();
-            var tracker = new TrackingService(storage);
-            DataContext = new DashboardViewModel(tracker);
-        }
-        catch {}
+        DataContext = viewModel;
     }
 
     private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
