@@ -116,11 +116,11 @@
                                 <TextBlock Text="📱" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel>
-                                <TextBlock Text="Phone Connected" Foreground="White" FontWeight="SemiBold" FontSize="13"/>
+                                <TextBlock Text="Phone Sync" Foreground="White" FontWeight="SemiBold" FontSize="13"/>
                                 <TextBlock Text="Real-time Bluetooth LE sync" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11"/>
                             </StackPanel>
                             <Border Background="#003E1F" CornerRadius="8" Padding="8,3" Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="LIVE" FontSize="10" FontWeight="Bold" Foreground="#00E676"/>
+                                <TextBlock Text="BLE" FontSize="10" FontWeight="Bold" Foreground="#00E676"/>
                             </Border>
                         </StackPanel>
                         <TextBlock Text="Modify limits instantly from your Android phone. Changes apply in &lt;1s." Foreground="#9AA0B8" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12"/>
@@ -235,7 +235,7 @@
                             <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="MOST USED" FontSize="10" Foreground="#6B7280" FontWeight="Bold"/>
-                                <TextBlock Text="Chrome • 2h 14m" FontSize="12" Foreground="White" FontWeight="SemiBold" Margin="0,2,0,0"/>
+                                <TextBlock Text="{Binding MostUsedText}" FontSize="12" Foreground="White" FontWeight="SemiBold" Margin="0,2,0,0"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1" HorizontalAlignment="Right">
                                 <TextBlock Text="PRODUCTIVITY SCORE" FontSize="10" Foreground="#6B7280" FontWeight="Bold" HorizontalAlignment="Right"/>
