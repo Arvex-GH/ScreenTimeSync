@@ -114,7 +114,11 @@ public class TrackingService
         // Total is derived, not stored: every credited minute belongs to an
         // app, so the total is exactly the sum of per-app usage. (Older
         // builds persisted a total that double-counted the live segment.)
-        _totalToday = TimeSpan.FromMinutes(TodayApps.Sum(a => a.TodayUsage.TotalMinutes));
+        // Exception: if a stored snapshot has an explicit total (e.g. set via
+        // the admin time-editor), honor it — the user asked for that exact value.
+        _totalToday = loaded.Total > TimeSpan.Zero
+            ? (loaded.Total > TimeSpan.FromHours(24) ? TimeSpan.FromHours(24) : loaded.Total)
+            : TimeSpan.FromMinutes(TodayApps.Sum(a => a.TodayUsage.TotalMinutes));
         DataRefreshed?.Invoke();
         TotalTimeUpdated?.Invoke(_totalToday);
     }
@@ -254,6 +258,29 @@ public class TrackingService
             AppContext.UI(() => { if (!TodayApps.Contains(model)) TodayApps.Add(model); });
         }
         _ = _storage.SaveSnapshotAsync(TodayApps, TotalScreenTime);
+        DataRefreshed?.Invoke();
+    }
+
+    // Called by the admin time-editor: replace today's tracked data with
+    // exact, user-entered values. Rows arrive pre-validated (>= 0, <= 24 h).
+    public void ApplyEditorChanges(IEnumerable<AppUsageModel> edited, TimeSpan total)
+    {
+        TodayApps.Clear();
+        _appCache.Clear();
+        foreach (var a in edited)
+        {
+            if (a.TodayUsage < TimeSpan.Zero) a.TodayUsage = TimeSpan.Zero;
+            if (a.TodayUsage > TimeSpan.FromHours(24)) a.TodayUsage = TimeSpan.FromHours(24);
+            a.IsCurrentlyActive = false;
+            UpdatePercent(a);
+            TodayApps.Add(a);
+            if (!string.IsNullOrWhiteSpace(a.ProcessName)) _appCache[a.ProcessName] = a;
+        }
+        if (total < TimeSpan.Zero) total = TimeSpan.Zero;
+        if (total > TimeSpan.FromHours(24)) total = TimeSpan.FromHours(24);
+        _totalToday = total;
+        TotalTimeUpdated?.Invoke(_totalToday);
+        _ = _storage.SaveSnapshotAsync(TodayApps, _totalToday);
         DataRefreshed?.Invoke();
     }
 

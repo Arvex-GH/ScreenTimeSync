@@ -52,6 +52,7 @@ Full docs: [ARCHITECTURE.md](docs/ARCHITECTURE.md) · [BLUETOOTH_PROTOCOL.md](do
 
 ```
 ScreenTimeSync/
+├── linux-app/                # Omarchy/Hyprland port (Python + GTK4) — see linux-app/README.md
 ├── windows-app/              # C# WPF .NET 8 (WinUI/WPF-UI)
 │   ├── ScreenTimeSync.sln
 │   └── ScreenTimeSync/       # Main app: App.xaml, MainWindow.xaml, Services/, ViewModels/
@@ -80,6 +81,16 @@ dotnet run --project ScreenTimeSync/ScreenTimeSync.csproj
 # 1st run: Allow Bluetooth + Firewall prompt
 # Pair phone via Bluetooth settings → "Add device" → ScreenTimeSync-PC
 ```
+
+#### Omarchy / Hyprland (Linux, no build needed — Python + GTK4)
+```bash
+cd linux-app
+./install.sh
+screentime-sync
+```
+User-local install (no root), autostarts on login. Tracks via `hyprctl`, stores
+in SQLite (`~/.local/share/screentime-sync/screentime.db`), admin panel with
+exact-time **Editor Mode** (Enter = save, Esc = cancel). Details: [linux-app/README.md](linux-app/README.md)
 
 #### Android (requires Android Studio Hedgehog+)
 ```bash
