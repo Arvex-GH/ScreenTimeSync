@@ -250,6 +250,7 @@
         <Grid x:Name="AdminDrawer" Grid.Row="0" Grid.RowSpan="3" Visibility="Collapsed" Panel.ZIndex="99">
             <Border Background="#99000000" MouseLeftButtonDown="AdminBackdrop_Click"/>
             <Border Width="340" HorizontalAlignment="Right" Background="#151A26" BorderBrush="#232A3D" BorderThickness="1,0,0,0" Padding="24">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <StackPanel>
                     <Grid Margin="0,0,0,16">
                         <TextBlock Text="Admin Panel" Style="{StaticResource H2}" VerticalAlignment="Center"/>
@@ -268,10 +269,93 @@
                     <StackPanel x:Name="AdminUnlocked" Visibility="Collapsed">
                         <TextBlock Text="Admin actions" Foreground="#9AA0B8" FontSize="12" Margin="0,0,0,12"/>
                         <ui:Button Content="Reset Today" Icon="{ui:SymbolIcon ArrowReset24}" Appearance="Secondary" HorizontalAlignment="Stretch" Command="{Binding ResetTodayCommand}" Margin="0,0,0,10"/>
-                        <ui:Button Content="Export CSV" Icon="{ui:SymbolIcon ArrowDownload24}" Appearance="Secondary" HorizontalAlignment="Stretch" Command="{Binding ExportCsvCommand}"/>
+                        <ui:Button Content="Export CSV" Icon="{ui:SymbolIcon ArrowDownload24}" Appearance="Secondary" HorizontalAlignment="Stretch" Command="{Binding ExportCsvCommand}" Margin="0,0,0,10"/>
+                        <Border Height="1" Background="#232A3D" Margin="0,2,0,12"/>
+                        <TextBlock Text="Time editing" Foreground="#9AA0B8" FontSize="12" Margin="0,0,0,8"/>
+                        <ui:Button Content="Enter Editor Mode" Appearance="Secondary" HorizontalAlignment="Stretch" Click="EditorMode_Click"/>
+                        <TextBlock Text="Set exact total and per-app times. Enter saves, Esc cancels." Foreground="#5A6380" FontSize="10" Margin="0,6,0,0" TextWrapping="Wrap"/>
                         <TextBlock Text="{Binding ExportStatusText}" Foreground="#00CEC9" FontSize="11" Margin="0,10,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
+
+                    <!-- Editor mode: exact time editing (Enter = Save, Esc = Cancel) -->
+                    <StackPanel x:Name="AdminEditor" Visibility="Collapsed">
+                        <Grid Margin="0,0,0,4">
+                            <TextBlock Text="Editor Mode" Foreground="#FDCB6E" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
+                            <TextBlock Text="Enter = Save &#x2022; Esc = Cancel" Foreground="#9AA0B8" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                        <TextBlock Text="Set exact values for today. Changes apply immediately and persist." Foreground="#9AA0B8" FontSize="11" Margin="0,0,0,12" TextWrapping="Wrap"/>
+
+                        <!-- Total screen time -->
+                        <Border Background="#0F1220" BorderBrush="#232A3D" BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,0,0,12">
+                            <Grid>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="TOTAL SCREEN TIME" Foreground="#9AA0B8" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock Text="Exact value, saved as-is" Foreground="#5A6380" FontSize="10"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                    <TextBox x:Name="EditTotalHours" Width="46" Height="32" Text="0" TextAlignment="Center" VerticalContentAlignment="Center" Background="#151A26" Foreground="White" BorderBrush="#2A3350" BorderThickness="1" FontSize="13"/>
+                                    <TextBlock Text="h" VerticalAlignment="Center" Foreground="#9AA0B8" Margin="5,0,8,0"/>
+                                    <TextBox x:Name="EditTotalMinutes" Width="46" Height="32" Text="0" TextAlignment="Center" VerticalContentAlignment="Center" Background="#151A26" Foreground="White" BorderBrush="#2A3350" BorderThickness="1" FontSize="13"/>
+                                    <TextBlock Text="m" VerticalAlignment="Center" Foreground="#9AA0B8" Margin="5,0,0,0"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Per-app times -->
+                        <TextBlock Text="APPS — HOURS+MINUTES TODAY" Foreground="#9AA0B8" FontSize="10" FontWeight="Bold" Margin="0,0,0,6"/>
+                        <ScrollViewer MaxHeight="300" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,0,0,10">
+                            <ItemsControl x:Name="EditAppsList">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#0F1220" BorderBrush="#232A3D" BorderThickness="1" CornerRadius="10" Padding="10" Margin="0,0,0,8">
+                                            <StackPanel>
+                                                <DockPanel Margin="0,0,0,6">
+                                                    <Button DockPanel.Dock="Right" Content="&#x2715;" Width="30" Height="30" Margin="6,0,0,0" Background="Transparent" Foreground="#FF6B6B" BorderThickness="0" FontSize="13" ToolTip="Remove app" Click="EditorRemoveRow_Click" Tag="{Binding}"/>
+                                                    <TextBox Text="{Binding AppName, UpdateSourceTrigger=PropertyChanged}" Height="30" Padding="8,4" VerticalContentAlignment="Center" Background="#151A26" Foreground="White" BorderBrush="#2A3350" BorderThickness="1" ToolTip="App name"/>
+                                                </DockPanel>
+                                                <TextBox Text="{Binding ProcessName, UpdateSourceTrigger=PropertyChanged}" Height="30" Padding="8,4" VerticalContentAlignment="Center" Background="#151A26" Foreground="White" BorderBrush="#2A3350" BorderThickness="1" ToolTip="process name (e.g. chrome)" Margin="0,0,0,6"/>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <ComboBox Grid.Column="0" IsEditable="True" Text="{Binding Category, UpdateSourceTrigger=PropertyChanged}" Height="30" Margin="0,0,8,0" VerticalContentAlignment="Center" ToolTip="Category">
+                                                        <ComboBoxItem Content="Browser"/>
+                                                        <ComboBoxItem Content="Development"/>
+                                                        <ComboBoxItem Content="Productivity"/>
+                                                        <ComboBoxItem Content="Social"/>
+                                                        <ComboBoxItem Content="Gaming"/>
+                                                        <ComboBoxItem Content="Media"/>
+                                                        <ComboBoxItem Content="Other"/>
+                                                    </ComboBox>
+                                                    <TextBox Grid.Column="1" Width="44" Height="30" Text="{Binding Hours, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Center" VerticalContentAlignment="Center" Background="#151A26" Foreground="White" BorderBrush="#2A3350" BorderThickness="1"/>
+                                                    <TextBlock Grid.Column="2" Text="h" VerticalAlignment="Center" Foreground="#9AA0B8" Margin="4,0,6,0"/>
+                                                    <TextBox Grid.Column="3" Width="44" Height="30" Text="{Binding Minutes, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Center" VerticalContentAlignment="Center" Background="#151A26" Foreground="White" BorderBrush="#2A3350" BorderThickness="1"/>
+                                                    <TextBlock Grid.Column="4" Text="m" VerticalAlignment="Center" Foreground="#9AA0B8" Margin="4,0,0,0"/>
+                                                </Grid>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                        <ui:Button Content="Add App" Appearance="Secondary" HorizontalAlignment="Stretch" Click="EditorAddRow_Click" Margin="0,0,0,10"/>
+                        <TextBlock x:Name="EditorError" Foreground="#FF6B6B" FontSize="11" TextWrapping="Wrap" Visibility="Collapsed" Margin="0,0,0,8"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <ui:Button Grid.Column="0" Content="Save (Enter)" Appearance="Primary" HorizontalAlignment="Stretch" Margin="0,0,4,0" Click="EditorSave_Click"/>
+                            <ui:Button Grid.Column="1" Content="Cancel (Esc)" Appearance="Secondary" HorizontalAlignment="Stretch" Margin="4,0,0,0" Click="EditorCancel_Click"/>
+                        </Grid>
+                    </StackPanel>
                 </StackPanel>
+                </ScrollViewer>
             </Border>
         </Grid>
 

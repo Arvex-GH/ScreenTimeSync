@@ -120,6 +120,35 @@ public partial class DashboardViewModel : ObservableObject
         );
     }
 
+    /// <summary>Exact total credited today — used by the admin time-editor.</summary>
+    public TimeSpan CurrentTotalTime => _tracker.TotalScreenTime;
+
+    /// <summary>Copy of today's per-app rows for editing in the admin time-editor.</summary>
+    public IReadOnlyList<AppUsageModel> SnapshotApps() =>
+        _tracker.TodayApps
+            .Select(a => new AppUsageModel
+            {
+                AppName = a.AppName,
+                ProcessName = a.ProcessName,
+                ExePath = a.ExePath,
+                IconBase64 = a.IconBase64,
+                Category = a.Category,
+                TodayUsage = a.TodayUsage,
+                WeekUsage = a.WeekUsage,
+                DailyLimit = a.DailyLimit,
+                IsLimited = a.IsLimited,
+                IsCurrentlyActive = a.IsCurrentlyActive
+            })
+            .OrderByDescending(a => a.TodayUsage)
+            .ToList();
+
+    /// <summary>Replace today's tracked data with the exact values from the admin time-editor.</summary>
+    public void ApplyAdminEdits(IEnumerable<AppUsageModel> edited, TimeSpan total)
+    {
+        _tracker.ApplyEditorChanges(edited, total);
+        Refresh(refreshChart: true);
+    }
+
     [RelayCommand]
     void ExportCsv()
     {
